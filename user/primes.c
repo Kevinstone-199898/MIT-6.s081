@@ -4,38 +4,53 @@
 
 int main()
 {
-    /*int p[2];
-    int buf[512];
-    int num[512];
-    pipe(p);
-
+    int p[2], num[50] = {0};
     for (int i = 2; i <= 35; i++)
         num[i - 2] = i;
 
-    write(p[1], num, 34 * sizeof(int));
-    read(p[0], buf, 34 * sizeof(int));
-    for (int i = 0; i <= 35; i++)
-        fprintf(2, "%d ", buf[i]);
-    fprintf(2, "\n");*/
-
-    int buf[20];
-
-    int p[2];
     pipe(p);
+    write(p[1], num, 34 * sizeof(int));
+    close(p[1]);
+    close(0);
+    dup(p[0]);
+    int pid;
 
-    int *point;
-    int x = 2;
-
-    for (point = &x; x <= 10; x++)
+    while (1)
     {
-        printf("writing %d\n", *point);
-        write(p[1], point, sizeof(int));
-    }
-    read(p[0], buf, 9 * sizeof(int));
+        if ((pid = fork()) == 0) // child process
+        {
+            // printf("pid: %d\n", getpid());
+            int prime, x;
+            if (!read(0, &prime, sizeof(int)))
+            {
+                // printf("pid: %d exiting!!!\n", getpid());
+                exit(0);
+            }
 
-    for (int i = 0; i < 9; i++)
-        printf("%d ", buf[i]);
-    printf("\n");
+            printf("prime %d\n", prime);
+            int pi[2];
+            pipe(pi);
+
+            while (read(0, &x, sizeof(int)))
+            {
+                if (x % prime)
+                {
+                    write(pi[1], &x, sizeof(int));
+                    // printf("writing %d\n", x);
+                }
+            }
+            close(0);
+            dup(pi[0]);
+            close(pi[0]);
+            close(pi[1]);
+        }
+        else
+        {
+            wait(0);
+            // printf("pid: %d waiting for pid %d!!!\n", getpid(), pid);
+            exit(0);
+        }
+    }
 
     return 0;
 }
