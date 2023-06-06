@@ -4,40 +4,29 @@
 
 int main()
 {
-    int p[2];
-    char buf[512];
+    int p1[2], p2[2];
+    char buf1 = 'I', buf2;
 
-    pipe(p);
-    int pid = fork();
-    if (pid == 0) // child process
+    pipe(p1);
+    pipe(p2);
+    close(0);
+    dup(p1[0]);
+    write(p1[1], &buf1, 1);
+    close(p1[0]);
+    close(p1[1]);
+
+    if (fork() == 0) // child process
     {
-        int child_pid = getpid();
-        if (read(p[0], buf, 1) == 0) // read byte from pipe
-        {
-            printf("error!\n");
-            exit(-1);
-        }
-        else
-        {
-            fprintf(2, "%d: received ping\n", child_pid);
-            write(p[1], buf, 1); // write byte on the pipe
-            exit(0);
-        }
-    }
-    else if (pid > 0) // parent process
-    {
-        int parent_pid = getpid();
-        write(p[1], "hello world", 1); // send byte
-        wait(0);
-        read(p[0], buf, 1); // read byte from pipe
-        fprintf(2, "%d: received pong\n", parent_pid);
+        read(0, &buf2, 1);
+        printf("%d: received ping\n", getpid());
+        write(p2[1], &buf2, 1);
         exit(0);
     }
-    else
+    else // parent process
     {
-        printf("error!\n");
-        exit(-1);
+        wait(0);
+        read(p2[0], &buf1, 1);
+        printf("%d: received pong\n", getpid());
+        exit(0);
     }
-
-    return 0;
 }

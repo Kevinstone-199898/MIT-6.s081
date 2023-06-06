@@ -13,19 +13,15 @@ int main()
     close(p[1]);
     close(0);
     dup(p[0]);
-    int pid;
+
+    int prime, x;
 
     while (1)
     {
-        if ((pid = fork()) == 0) // child process
+        if (fork() == 0) // child process
         {
-            // printf("pid: %d\n", getpid());
-            int prime, x;
             if (!read(0, &prime, sizeof(int)))
-            {
-                // printf("pid: %d exiting!!!\n", getpid());
                 exit(0);
-            }
 
             printf("prime %d\n", prime);
             int pi[2];
@@ -34,23 +30,18 @@ int main()
             while (read(0, &x, sizeof(int)))
             {
                 if (x % prime)
-                {
                     write(pi[1], &x, sizeof(int));
-                    // printf("writing %d\n", x);
-                }
             }
             close(0);
             dup(pi[0]);
             close(pi[0]);
             close(pi[1]);
         }
-        else
+        else // parent process
         {
             wait(0);
-            // printf("pid: %d waiting for pid %d!!!\n", getpid(), pid);
             exit(0);
         }
     }
-
-    return 0;
+    exit(0);
 }
