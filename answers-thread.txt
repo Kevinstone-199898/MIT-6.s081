@@ -1,0 +1,1 @@
+There are situations when two threads sense the same empty position in the hash table and put keys in there, but only one thread will succeed, others are missing
