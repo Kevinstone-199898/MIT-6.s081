@@ -2,15 +2,69 @@
 
 ### c文件和头文件结构
 * file.c
+：    实现文件系统调用的支撑函数
+    * fileinit
+    * filealloc
+    * filedup
+    * fileclose
+    * filestat
+    * fileread
+    * filewrite
 * file.h
-* fs.c
-：    file system 的实现函数，包含五层：
-    * Blocks ：磁盘上的块
-    * Log ：为了实现crash recovery的日志系统
-    * Files ： 
-    * Directories ： 文件夹（特殊的文件，其中的内容为当前文件夹下的文件/文件夹名）
-    * Names(Path) ： 路径解析
+  * file ： 
+  * inode ： 内存中的inode
+* fs.c ： file system 的底层实现
+    * 包含五层：
+        * Blocks ：磁盘上的块
+        * Log ：为了实现crash recovery的日志系统
+        * Files ： 
+        * Directories ： 文件夹（特殊的文件，其中的内容为当前文件夹下的文件/文件夹名）
+        * Names(Path) ： 路径解析
+    * 函数：
+        * readsb ： 读超级块
+        * fsinit ： 初始化文件系统
+        * bzero : block清零
+        * balloc ： 在硬盘中分配一个块
+
+          <strong>对块的操作通常包含三个步骤：</strong>
+            * bread
+            * log_write
+            * brelse
+        * bfree ： 回收块
+        * itable结构：
+        * ialloc ：
+        * iupdate ：
+        * iget ：
+        * idup ：
+        * ilock ：
+        * iunlock ：
+        * iput ：
+        * iunlockput ：
+        * bmap ：
+        * itrunc ：
+        * stati ：
+        * readi ：
+        * writei ：
+        * dirlookup ：
+        * dirlink ：
+        * skipelem ：
+        * namex ：
+        * namei ：
+        * nameiparent ： 
+
 * fs.h
+    * 硬盘的布局
+：    [ boot block | super block | log | inode blocks | free bit map | data blocks]
+    * dinode ： 硬盘中的inode
+    * dirent ： 文件夹中包含一系列的dirent结构
+* bio.c : Buffer Cache
+    * binit ：
+    * bget ：
+    * bread ：
+    * bwritre ：
+    * brelse ：
+    * bpin ：
+    * bunpin ： 
 * sysfile.c
 :    包含跟文件相关的系统调用函数和其他支撑函数
   
@@ -39,10 +93,10 @@
 
 ### 结构解析
 * inode
-* dinode
+* 
 * file
 * 
-* itable:
+
 * dirent
 
 ### 函数解析
