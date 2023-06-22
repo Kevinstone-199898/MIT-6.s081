@@ -2,6 +2,10 @@
 
 [ Journaling the Linux ext2fs Filesystem](https://pdos.csail.mit.edu/6.828/2021/readings/journal-design.pdf)
 
+ex2fs文件系统的问题：
+* non-atomic
+* unpredictable
+
 ## 分析
 
 ### 现存问题（目的）
@@ -12,5 +16,20 @@ avoid the need for an expensive recovery stage every time a machine reboots
 * Compatability
 * Reliability
   * Peservation
-  * Predicitability
-  * Atomicity 
+  * Predicitability : requires that the filesystem must make its writes to disk in a predictable order whenever a single update operation changes multiple blocks on disk
+      * <strong>synchronous</strong> ：wait for the first writes to complete before submitting the next ones to the device driver。
+
+        问题：性能差, no batch up
+      * <strong> deferred ordered write</strong>: maintain an ordering between the disk buffers in memory, and to ensure that when we do eventually go to write back the data, we never write a block until all of its predecessors are safely on disk
+ 
+        问题：cyclic dependencies between cached buffers
+      * <strong> soft update</strong>:
+
+      以上三种方法存在的问题： the recovery process still has to scan the entire disk in order to find and repair any uncompleted operations
+  * Atomicity
+ 
+### Log-structured FS——Batch, Commit
+* Anatomy of transactions
+    * ordering(dependency) is still important:  one transaction deleting a filename from one block in a directory and another transaction inserting the same filename into a different block
+
+
