@@ -31,5 +31,8 @@ avoid the need for an expensive recovery stage every time a machine reboots
 ### Log-structured FS——Batch, Commit
 * Anatomy of transactions
     * ordering(dependency) is still important:  one transaction deleting a filename from one block in a directory and another transaction inserting the same filename into a different block
+* 文件系统中的transaction和数据库中的transaction的不同
+    * No transaction abort——文件系统中transaction前会保证合法性；DB中可能存在半途中的abortion
+    * short life term of transaction in FS : 定期的，batch的transaction（多久一次transaction——tradeoff）
 
 
