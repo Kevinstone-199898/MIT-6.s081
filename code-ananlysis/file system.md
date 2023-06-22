@@ -31,10 +31,10 @@
             * log_write
             * brelse
         * bfree ： 回收块
-        * itable结构：
-        * ialloc ：
-        * iupdate ：
-        * iget ：
+        * <strong>itable结构：内核中维护的一张inode的表，包含被所有进程使用的inode，还有ip->ref，ip->valid等信息</strong>
+        * ialloc ：Returns an <strong>unlocked but allocated and referenced inode</strong>
+        * iupdate ：Copy a modified in-memory inode to disk. <strong>Caller must hold ip->lock</strong>
+        * iget ：找到在itable中的指定inode（如果已存在，ref+1；不存在则分配，ref=1）
         * idup ：
         * ilock ：
         * iunlock ：
@@ -92,8 +92,19 @@
   
 
 ### 结构解析
-* inode
-* 
+* <strong>inode：能被使用需要经过五个步骤</strong>
+    * 被分配：
+    * 在itable中ref ： ip->ref tracks the number of in-memory pointers to the entry (open files and current directories). <strong>iget() finds or creates a table entry and increments its ref; iput() decrements ref.</strong>
+    * valid ： <strong>ilock() reads the inode from the disk and sets ip->valid, while iput() clears ip->valid if ip->ref has fallen to zero.</strong>
+ 
+一般的操作：
+```c
+ip = iget(dev, inum)
+ilock(ip)
+//   ... examine and modify ip->xxx ...
+iunlock(ip)
+iput(ip)
+```
 * file
 * 
 
