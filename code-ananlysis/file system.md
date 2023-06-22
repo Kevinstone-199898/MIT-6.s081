@@ -105,9 +105,7 @@ ilock(ip)
 iunlock(ip)
 iput(ip)
 ```
-* file
-* 
-
+* file ：
 * dirent
 
 ### 函数解析
@@ -115,30 +113,7 @@ iput(ip)
 ```c
 void iput(struct inode *ip)
 {
-  acquire(&itable.lock);
-
-  if (ip->ref == 1 && ip->valid && ip->nlink == 0)
-  {
-    // inode has no links and no other references: truncate and free.
-
-    // ip->ref == 1 means no other process can have ip locked,
-    // so this acquiresleep() won't block (or deadlock).
-    acquiresleep(&ip->lock);
-
-    release(&itable.lock);
-
-    itrunc(ip);
-    ip->type = 0;
-    iupdate(ip);
-    ip->valid = 0;
-
-    releasesleep(&ip->lock);
-
-    acquire(&itable.lock);
-  }
-
-  ip->ref--;
-  release(&itable.lock);
+  
 }
 ```
 
@@ -148,4 +123,4 @@ void iput(struct inode *ip)
 ：    iunlockput比iunlock多了一个iput的操作，
 3. inode的ref和nlink的区别
 ： ref指的是进程中用到的该文件的次数；nlink是指某文件在硬盘中有多少硬链接（有多少种不同的路径可以指向该文件）
-5. 
+
