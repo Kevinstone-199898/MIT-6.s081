@@ -35,18 +35,18 @@
         * ialloc ：Returns an <strong>unlocked but allocated and referenced inode</strong>
         * iupdate ：Copy a modified in-memory inode to disk. <strong>Caller must hold ip->lock</strong>
         * iget ：找到在itable中的指定inode（如果已存在，ref+1；不存在则分配，ref=1）
-        * idup ：
-        * ilock ：
+        * idup ：ip->ref++
+        * ilock ：Lock the given inode.<strong>Reads the inode from disk if necessary.</strong>
         * iunlock ：
-        * iput ：
-        * iunlockput ：
-        * bmap ：
-        * itrunc ：
-        * stati ：
-        * readi ：
-        * writei ：
-        * dirlookup ：
-        * dirlink ：
+        * iput ：ip->ref--，如果减到0了并且nlink为0，说明可以释放这个inode
+        * iunlockput ：iunlock + iput
+        * bmap ：返回inode中第n个块的地址
+        * itrunc ：丢弃inode中的block
+        * stati ：Copy stat information from inode.Caller must hold ip->lock.
+        * readi ：Read data from inode.Caller must hold ip->lock.
+        * writei ：Write data to inode.Caller must hold ip->lock.
+        * dirlookup ：Look for a directory entry in a directory.
+        * dirlink ：Write a new directory entry (name, inum) into the directory dp.
         * skipelem ：
         * namex ：
         * namei ：
@@ -144,5 +144,8 @@ void iput(struct inode *ip)
 
 ### 重点问题说明
 
-1. iunlockput 和 iunlock 的区别：
-iunlockput比iunlock多了一个iput的操作，
+1. iunlockput和iunlock的区别
+：    iunlockput比iunlock多了一个iput的操作，
+3. inode的ref和nlink的区别
+： ref指的是进程中用到的该文件的次数；nlink是指某文件在硬盘中有多少硬链接（有多少种不同的路径可以指向该文件）
+5. 
